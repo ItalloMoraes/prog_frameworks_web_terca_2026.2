@@ -28,6 +28,20 @@ async findMany(request, response){
 
     return response.status(200).json(resultado);
 }
+async update(request, response){
+    try{
+        const aluno = await alunoService.update(
+            request.params.id,
+            request.body
+        );
+
+        return response.status(200).json({aluno});
+    }catch(e){
+        return response
+            .status(e.statusCode || 500)
+            .json({error: e.message});
+    }
+}
     async create(request, response){
         try{
             const aluno = await alunoService.create(request.body);
