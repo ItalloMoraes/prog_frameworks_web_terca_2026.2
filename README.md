@@ -1,93 +1,236 @@
-# Programação para Frameworks Web
+# API de Alunos
 
-Este repositório contém os códigos e exemplos desenvolvidos durante a disciplina **Programação para Frameworks Web**, ministrada pelo professor **Thiago Rodrigues**.
+API REST desenvolvida em **Node.js**, **Express**, **Prisma ORM** e
+**MySQL** para gerenciar alunos. O projeto faz parte da atividade de
+Programação para Frameworks Web.
 
-## 🚀 Executando o projeto
+## Funcionalidades
 
-Para executar o projeto em sua máquina, siga os passos abaixo.
+-   Listar alunos com paginação.
+-   Ordenar a listagem por campo e direção (`asc` ou `desc`).
+-   Informar a quantidade total de alunos cadastrados.
+-   Buscar um aluno pelo ID.
+-   Cadastrar um aluno.
+-   Atualizar nome e e-mail de um aluno.
+-   Excluir um aluno.
+-   Tratar situações como aluno não encontrado, dados obrigatórios
+    ausentes e e-mail duplicado.
 
-### 1. Clonar o repositório
+## Tecnologias utilizadas
 
-Clone este repositório utilizando o Git:
+-   [Node.js](https://nodejs.org/)
+-   [Express](https://expressjs.com/)
+-   [Prisma ORM](https://www.prisma.io/)
+-   [MySQL](https://www.mysql.com/)
 
-```bash
-git clone URL_DO_REPOSITORIO
-```
+## Requisitos
 
-Em seguida, entre na pasta do projeto:
+Antes de executar o projeto, tenha instalado:
 
-```bash
-cd NOME_DO_PROJETO
-```
+-   Node.js e npm.
+-   MySQL em execução.
+-   Um banco de dados MySQL chamado `univ` (ou outro nome configurado no
+    arquivo `.env`).
 
-### 2. Instalar as dependências
+## Configuração
 
-Com o projeto na pasta, execute:
+### 1. Instale as dependências
 
-```bash
+Na pasta do projeto, execute:
+
+``` bash
 npm install
 ```
 
-Esse comando irá instalar todas as dependências necessárias para executar o projeto.
+### 2. Configure as variáveis de ambiente
 
-Depois,
+Crie um arquivo `.env` na raiz do projeto e configure a conexão com o
+MySQL. Exemplo:
 
-```bash
-npx prisma generate
-```
-
-Esse comando irá fazer o Prisma gerar o Prisma Client a partir do seu schema.prisma.
-
-### 3. Variáveis de Ambiente
-
-> ⚠️ **Lembrete:** sempre que alterar o banco de dados, usuário, senha, porta ou ambiente de execução, **atualize as variáveis de ambiente abaixo**.
-
-```env
-DATABASE_URL="mysql://root:thiago@localhost:3306/univ"
-
-DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=thiago
-DB_NAME=univ
-
+``` env
+DATABASE_URL="mysql://USUARIO:SENHA@localhost:3306/univ"
 PORT=3000
 ```
 
-#### Banco de Dados
+Substitua `USUARIO` e `SENHA` pelos dados do seu MySQL. Não compartilhe
+sua senha nem envie o arquivo `.env` para o GitHub.
 
-As variáveis abaixo devem corresponder às configurações do banco MySQL utilizado pela aplicação:
+### 3. Prepare o banco de dados
 
-* `DATABASE_URL` — URL de conexão com o banco.
-* `DB_HOST` — endereço do servidor MySQL.
-* `DB_USER` — usuário do banco.
-* `DB_PASSWORD` — senha do banco.
-* `DB_NAME` — nome do banco de dados.
+Confira se o modelo do Prisma está configurado para o banco utilizado.
+Para sincronizar o modelo com o banco, execute:
 
-#### Servidor
-
-* `PORT` — porta utilizada pela aplicação.
-
-### ⚠️ Importante
-
-Ao clonar o projeto ou configurar um novo ambiente, verifique e **atualize essas variáveis antes de executar a aplicação**.
-
-### 4. Executar o projeto
-
-Após a instalação das dependências, execute o comando definido no projeto para iniciá-lo, por exemplo:
-
-```bash
-npm start
+``` bash
+npx prisma db push
 ```
 
-ou:
+Se o projeto exigir a geração do Prisma Client no ambiente instalado,
+execute também:
 
-```bash
+``` bash
+npx prisma generate
+```
+
+## Executar a API
+
+Inicie o servidor em modo de desenvolvimento:
+
+``` bash
 npm run dev
 ```
 
-> **Observação:** O comando para iniciar o projeto pode variar de acordo com o projeto desenvolvido em aula. Consulte o `package.json` para verificar os scripts disponíveis.
+Com a configuração padrão, a API ficará disponível em:
 
----
+``` text
+http://localhost:3000
+```
 
-**Disciplina:** Programação para Frameworks Web
-**Professor:** Thiago Rodrigues
+## Rotas disponíveis
+
+Considere a URL base `http://localhost:3000/alunos`.
+
+  ------------------------------------------------------------------------
+  Método            Rota              Descrição         Resposta esperada
+  ----------------- ----------------- ----------------- ------------------
+  GET               `/alunos`         Lista alunos e    `200 OK`
+                                      informa o total   
+
+  GET               `/alunos/:id`     Busca um aluno    `200 OK` ou
+                                      pelo ID           `404 Not Found`
+
+  POST              `/alunos`         Cadastra um aluno `201 Created`
+
+  PUT               `/alunos/:id`     Atualiza nome e   `200 OK`,
+                                      e-mail            `404 Not Found` ou
+                                                        erro de validação
+
+  DELETE            `/alunos/:id`     Exclui um aluno   `204 No Content`
+                                                        ou `404 Not Found`
+  ------------------------------------------------------------------------
+
+### Listar alunos
+
+Requisição:
+
+``` http
+GET /alunos
+```
+
+A listagem aceita os parâmetros opcionais `page`, `pageSize`, `orderBy`
+e `order`.
+
+Exemplo:
+
+``` http
+GET /alunos?page=1&pageSize=10&orderBy=nome&order=asc
+```
+
+-   `page`: página desejada.
+-   `pageSize`: quantidade de registros por página.
+-   `orderBy`: campo usado na ordenação. Campos previstos: `id`, `nome`,
+    `email`, `createdAt` e `updatedAt`.
+-   `order`: direção da ordenação (`asc` ou `desc`).
+
+Exemplo de resposta:
+
+``` json
+{
+  "alunos": [
+    {
+      "id": 1,
+      "nome": "Ana",
+      "email": "ana@email.com"
+    }
+  ],
+  "total": 1
+}
+```
+
+O exemplo é ilustrativo; os registros e os campos retornados dependem
+dos dados existentes no banco.
+
+### Buscar aluno por ID
+
+``` http
+GET /alunos/1
+```
+
+Quando o aluno existe, a API retorna o objeto do aluno. Caso não exista,
+retorna `404 Not Found` com uma mensagem de erro.
+
+### Cadastrar aluno
+
+``` http
+POST /alunos
+Content-Type: application/json
+```
+
+Corpo da requisição:
+
+``` json
+{
+  "nome": "Maria Silva",
+  "email": "maria@email.com"
+}
+```
+
+### Atualizar aluno
+
+``` http
+PUT /alunos/1
+Content-Type: application/json
+```
+
+Corpo da requisição:
+
+``` json
+{
+  "nome": "Maria Souza",
+  "email": "maria.souza@email.com"
+}
+```
+
+O nome e o e-mail devem ser informados. O e-mail também precisa ser
+único.
+
+### Excluir aluno
+
+``` http
+DELETE /alunos/1
+```
+
+Quando a exclusão é concluída, a API retorna `204 No Content`, sem corpo
+de resposta.
+
+## Organização do projeto
+
+``` text
+src/
+├── controllers/    # Recebe as requisições e monta as respostas HTTP
+├── databases/      # Configuração de acesso ao banco/Prisma
+├── errors/         # Classes de erro da aplicação
+├── middlewares/    # Middlewares de validação
+├── routes/         # Definição das rotas
+├── schemas/        # Esquemas de validação
+├── services/       # Regras de negócio e operações com o Prisma
+└── index.js        # Inicialização da aplicação
+```
+
+## Tratamento de erros
+
+A API utiliza erros específicos para representar situações esperadas,
+por exemplo:
+
+-   **400 Bad Request:** dados obrigatórios ausentes ou parâmetros de
+    ordenação inválidos.
+-   **404 Not Found:** aluno não encontrado.
+-   **409 Conflict:** tentativa de cadastrar ou atualizar um aluno com
+    e-mail já utilizado.
+-   **500 Internal Server Error:** erro inesperado no servidor.
+
+## Observações
+
+-   Os exemplos de requisição podem ser executados pelo Postman,
+    Insomnia ou outra ferramenta para testar APIs.
+-   Os dados apresentados nos exemplos são fictícios.
+-   Mantenha credenciais e informações privadas fora do repositório.
