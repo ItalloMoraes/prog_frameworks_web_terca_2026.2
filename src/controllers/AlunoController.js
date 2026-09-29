@@ -19,15 +19,44 @@ async findMany(request, response){
     orderBy ||= "id";
     order ||= "asc";
 
-    const resultado = await alunoService.findMany(
-        page,
-        pageSize,
-        orderBy,
-        order
-    );
+    const camposPermitidos = [
+        "id",
+        "nome",
+        "email",
+        "createdAt",
+        "updatedAt"
+    ];
 
-    return response.status(200).json(resultado);
+    order = order.toLowerCase();
+
+    if(!camposPermitidos.includes(orderBy)){
+        return response.status(400).json({
+            error: "Campo de ordenação inválido"
+        });
+    }
+
+    if(!["asc", "desc"].includes(order)){
+        return response.status(400).json({
+            error: "Ordem inválida. Use asc ou desc"
+        });
+    }
+
+    try{
+        const resultado = await alunoService.findMany(
+            page,
+            pageSize,
+            orderBy,
+            order
+        );
+
+        return response.status(200).json(resultado);
+    }catch(e){
+        return response.status(e.statusCode || 500).json({
+            error: e.message
+        });
+    }
 }
+
 async update(request, response){
     try{
         const aluno = await alunoService.update(
