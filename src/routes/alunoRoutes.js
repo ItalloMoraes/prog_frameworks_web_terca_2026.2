@@ -5,6 +5,7 @@ const validarAluno = require("../middlewares/validarAluno");
 const router = express.Router();
 
 router.get("/",(request, response, next)=>{
+    router.get("/:id", alunoController.findUnique);
     console.log("Executando antes do findMany");
     next();
 }, alunoController.findMany);
