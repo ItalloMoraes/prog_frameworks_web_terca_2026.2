@@ -42,6 +42,17 @@ async update(request, response){
             .json({error: e.message});
     }
 }
+async delete(request, response){
+    try{
+        await alunoService.delete(request.params.id);
+
+        return response.status(204).send();
+    }catch(e){
+        return response
+            .status(e.statusCode || 500)
+            .json({error: e.message});
+    }
+}
     async create(request, response){
         try{
             const aluno = await alunoService.create(request.body);

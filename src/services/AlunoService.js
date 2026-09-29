@@ -61,6 +61,15 @@ async update(id, dados){
         throw e;
     }
 }
+async delete(id){
+    await this.findUnique(id);
+
+    await prisma.aluno.delete({
+        where: {
+            id: Number(id)
+        }
+    });
+}
     async create(aluno){
         const {nome, email} = aluno;
         if(!nome || !email){
