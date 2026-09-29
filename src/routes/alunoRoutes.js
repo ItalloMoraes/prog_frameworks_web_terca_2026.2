@@ -1,6 +1,7 @@
 const express = require("express");
 const alunoController = require("../controllers/AlunoController");
 const validarAluno = require("../middlewares/validarAluno");
+const validarAlunoId = require("../middlewares/validarAlunoId");
 
 const router = express.Router();
 
@@ -9,7 +10,7 @@ router.get("/", (request, response, next) => {
     next();
 }, alunoController.findMany);
 
-router.get("/:id", alunoController.findUnique);
+router.get("/:id", validarAlunoId, alunoController.findUnique);
 
 router.post("/", validarAluno, alunoController.create);
 
